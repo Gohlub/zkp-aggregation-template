@@ -7,12 +7,9 @@ import {Fibonacci} from "../src/Fibonacci.sol";
 import {SP1VerifierGateway} from "@sp1-contracts/SP1VerifierGateway.sol";
 
 struct SP1ProofFixtureJson {
-    uint32 a;
-    uint32 b;
-    uint32 n;
+    bytes32 verification_key;
+    bytes32 merkle_root;
     bytes proof;
-    bytes publicValues;
-    bytes32 vkey;
 }
 
 contract FibonacciTest is Test {
@@ -23,7 +20,7 @@ contract FibonacciTest is Test {
 
     function loadFixture() public view returns (SP1ProofFixtureJson memory) {
         string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/src/fixtures/plonk-fixture.json");
+        string memory path = string.concat(root, "/src/fixtures/groth16-onchain.json");
         string memory json = vm.readFile(path);
         bytes memory jsonBytes = json.parseRaw(".");
         return abi.decode(jsonBytes, (SP1ProofFixtureJson));
@@ -33,26 +30,40 @@ contract FibonacciTest is Test {
         SP1ProofFixtureJson memory fixture = loadFixture();
 
         verifier = address(new SP1VerifierGateway(address(1)));
-        fibonacci = new Fibonacci(verifier, fixture.vkey);
+        fibonacci = new Fibonacci(
+            verifier, 
+            fixture.verification_key,
+            fixture.verification_key  // Using same key for both in test
+        );
     }
 
-    function test_ValidFibonacciProof() public {
+    function test_ValidAggregateProof() public {
         SP1ProofFixtureJson memory fixture = loadFixture();
 
-        vm.mockCall(verifier, abi.encodeWithSelector(SP1VerifierGateway.verifyProof.selector), abi.encode(true));
+        vm.mockCall(
+            verifier, 
+            abi.encodeWithSelector(SP1VerifierGateway.verifyProof.selector), 
+            abi.encode(true)
+        );
 
-        (uint32 n, uint32 a, uint32 b) = fibonacci.verifyFibonacciProof(fixture.publicValues, fixture.proof);
-        assert(n == fixture.n);
-        assert(a == fixture.a);
-        assert(b == fixture.b);
+        fibonacci.verifyAggregateProofAndUpdateRoot(
+            abi.encode(fixture.merkle_root),
+            fixture.proof,
+            fixture.merkle_root
+        );
+
+        assert(fibonacci.merkleRoot() == fixture.merkle_root);
     }
 
-    function testFail_InvalidFibonacciProof() public view {
+    function testFail_InvalidAggregateProof() public {
         SP1ProofFixtureJson memory fixture = loadFixture();
-
-        // Create a fake proof.
+        
         bytes memory fakeProof = new bytes(fixture.proof.length);
 
-        fibonacci.verifyFibonacciProof(fixture.publicValues, fakeProof);
+        fibonacci.verifyAggregateProofAndUpdateRoot(
+            abi.encode(fixture.merkle_root),
+            fakeProof,
+            fixture.merkle_root
+        );
     }
 }
