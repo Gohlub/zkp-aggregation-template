@@ -1,16 +1,15 @@
 [package]
 version = "0.1.0"
-name = "fibonacci-script"
+name = "aggregator-script"
 edition = "2021"
-default-run = "fibonacci"
 
 [[bin]]
 name = "fibonacci"
 path = "src/bin/main.rs"
 
 [[bin]]
-name = "evm"
-path = "src/bin/evm.rs"
+name = "evm_aggregate"
+path = "src/bin/evm_aggregate.rs"
 
 [dependencies]
 sp1-sdk = "3.0.0"
@@ -20,7 +19,6 @@ clap = { version = "4.0", features = ["derive", "env"] }
 tracing = "0.1.40"
 hex = "0.4.3"
 alloy-sol-types = { workspace = true }
-fibonacci-lib = { path = "../lib" }
 
 [build-dependencies]
-sp1-helper = "3.0.0"
+sp1-build = "3.1.0"
