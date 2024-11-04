@@ -1,6 +1,6 @@
-# SP1 Project Template Contracts
+# Proof Aggregator Template
 
-This is a template for writing a contract that uses verification of [SP1](https://github.com/succinctlabs/sp1) PlonK proofs onchain using the [SP1VerifierGateway](https://github.com/succinctlabs/sp1-contracts/blob/main/contracts/src/SP1VerifierGateway.sol).
+This contract is based on a template for writing a contract that uses verification of [SP1](https://github.com/succinctlabs/sp1) PlonK proofs onchain using the [SP1VerifierGateway](https://github.com/succinctlabs/sp1-contracts/blob/main/contracts/src/SP1VerifierGateway.sol). It was appropriated for the needs of [Uncentered Systems](https://uncentered.systems/).
 
 ## Requirements
 
@@ -59,3 +59,41 @@ It can also be a good idea to verify the contract when you deploy, in which case
 ```sh
 forge create src/SP1AggregateVerifier.sol:SP1AggregateVerifier --rpc-url $RPC_URL --private-key $PRIVATE_KEY --constructor-args $VERIFIER $PROGRAM_VKEY --verify --verifier etherscan --etherscan-api-key $ETHERSCAN_API_KEY
 ```
+
+## Proof Construction
+
+For examples of how to construct proofs, refer to the fixture file in `src/fixtures/groth16-offchain.json`. This file contains the inputs needed to reconstruct the merkle tree:
+
+```json
+{
+  "verificationKeys": [...],
+  "publicValues": [...],
+  "leafIndices": [...]
+}
+```
+
+To construct proofs using these values:
+
+1. Each leaf in the merkle tree is constructed by:
+   - Concatenating the verification key and public values for each proof
+   - Hashing the concatenated result using SHA256
+
+2. The program demonstrates this in the `commit_proof_pairs` function ([../program/src/main.rs#L16](../program/src/main.rs)):
+
+```rust
+let leaves: Vec<[u8; 32]> = vkeys
+    .iter()
+    .zip(committed_values.iter())
+    .map(|(vkey, value)| {
+        let concat = [&words_to_bytes_le(vkey)[..], value].concat();
+        MerkleSha256::hash(&concat)
+    })
+    .collect();
+```
+
+3. Once you have the leaves, you can:
+   - Construct the full merkle tree using `MerkleTree::from_leaves()`
+   - Generate proofs for specific indices using `merkle_tree.proof(&indices)`
+   - Verify proofs using `proof.verify(root, leaf_indices, leaf_hashes, total_leaves_count)`
+
+You can reference the [rs_merkle documentation](https://docs.rs/rs-merkle/latest/rs_merkle/index.html) for more information.
