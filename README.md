@@ -106,9 +106,10 @@ Then, set the `SP1_PROVER` environment variable to `network` and set the `SP1_PR
 environment variable to your whitelisted private key.
 
 For example, to generate an EVM-compatible proof using the prover network, run the following
-command:
+commands:
 
 ```sh
+cd script
 SP1_PROVER=network SP1_PRIVATE_KEY=... cargo run --release --bin evm
 ```
 
