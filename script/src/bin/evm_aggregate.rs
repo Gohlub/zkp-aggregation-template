@@ -3,13 +3,14 @@ use alloy_sol_types::SolValue;
 use clap::{Parser, ValueEnum};
 use serde::{Deserialize, Serialize};
 use sp1_sdk::{
-    HashableKey, ProverClient, SP1Proof, SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey,
+    include_elf, HashableKey, ProverClient, SP1Proof, SP1ProofWithPublicValues, SP1Stdin,
+    SP1VerifyingKey,
 };
 use std::path::PathBuf;
 
 /// The ELF files
-pub const FIBONACCI_ELF: &[u8] = include_bytes!("../../../elf/fibonacci-elf");
-pub const AGGREGATOR_ELF: &[u8] = include_bytes!("../../../elf/aggregator-elf");
+pub const FIBONACCI_ELF: &[u8] = include_elf!("fibonacci-program");
+pub const AGGREGATOR_ELF: &[u8] = include_elf!("aggregator-program");
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]

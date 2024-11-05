@@ -1,7 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
-        "program/Cargo.toml",
-        "script/Cargo.toml"
+        "${workspaceFolder}/program/Cargo.toml",
+        "${workspaceFolder}/script/Cargo.toml",
+        "${workspaceFolder}/fibonacci/program/Cargo.toml",
+        "${workspaceFolder}/fibonacci/script/Cargo.toml"
     ],
     "rust-analyzer.check.overrideCommand": [
         "cargo",

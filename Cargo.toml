@@ -2,9 +2,16 @@
 members = [
     "program",
     "script",
-    "fibonacci/program"
+    "fibonacci/program",
+    "fibonacci/script"
 ]
 resolver = "2"
 
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
 [workspace.dependencies]
 alloy-sol-types = "0.7.7"
+sp1-sdk = "3.0.0"
+sp1-build = "3.1.0"
