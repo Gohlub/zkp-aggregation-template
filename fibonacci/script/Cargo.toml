@@ -10,23 +10,8 @@ hex = "0.4.3"
 sp1-sdk = { workspace = true }
 
 [build-dependencies]
-sp1-build = { workspace = true }
+sp1-build = "3.1.0"
 
-[[bin]]
-name = "plonk_bn254"
-path = "bin/plonk_bn254.rs"
-
-[[bin]]
-name = "groth16_bn254"
-path = "bin/groth16_bn254.rs"
-
-[[bin]]
-name = "compressed"
-path = "bin/compressed.rs"
-
-[[bin]]
-name = "execute"
-path = "bin/execute.rs"
 
 [[bin]]
 name = "fibonacci-script"
